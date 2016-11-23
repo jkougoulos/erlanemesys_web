@@ -1,0 +1,9 @@
+%% -*- erlang -*-
+{application, erlanemesys_web,
+ [{description, "erlanemesys_web"},
+  {vsn, "0.1"},
+  {modules, []},
+  {registered, []},
+  {mod, {'erlanemesys_web_app', []}},
+  {env, []},
+  {applications, [kernel, stdlib, crypto]}]}.
