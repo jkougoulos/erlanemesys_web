@@ -4,7 +4,7 @@
 %% @doc Web server for erlanemesys_web.
 
 -module(erlanemesys_web_web).
--author("Mochi Media <dev@mochimedia.com>").
+-author("John Kougoulos <john.kougoulos@gmail.com>").
 
 -export([start/1, stop/0, loop/2]).
 
@@ -27,7 +27,7 @@ loop(Req, DocRoot) ->
             Method when Method =:= 'GET'; Method =:= 'HEAD' ->
                 case Path of
                     "del/" ++ Host ->
-                                ok = ping_mgr:del( Host ),
+                                ok = erlanemesys_api:del( Host ),
                                  Req:respond({200, [{"Content-Type", "text/html"}],
                                    "<HTML>" ++
                                    "You asked to delete: " ++ Host ++ "<BR>"
@@ -35,7 +35,7 @@ loop(Req, DocRoot) ->
                                 ++ "</HTML>"
                                 });
                     "add/" ++ Host ->
-                                {ok, Pid } = ping_mgr:add( Host ),
+                                {ok, Pid } = erlanemesys_api:add( Host ),
                                  Req:respond({200, [{"Content-Type", "text/html"}],
                                    "<HTML>" ++
                                    "You asked to add: " ++ Host ++
@@ -44,19 +44,15 @@ loop(Req, DocRoot) ->
                                 ++ "</HTML>"
                                 });
                     "run/" ++ Host ->
-                                ok = ping_mgr:run( Host ),
+                                ok = erlanemesys_api:run( Host ),
                                  Req:respond({200, [{"Content-Type", "text/html"}],
                                    "<HTML>" ++
                                    "You asked to run: " ++ Host ++ " ok!<BR>"
                                 ++ "<a href=\"/active\"> Active ones</a><BR>"
                                 ++ "</HTML>"
                                 });
-                    "report/" ++ Host ->
-                                { ok, Str }  = ping_stats:report( Host ),
-                                 Req:respond({200, [{"Content-Type", "text/plain"}],
-                                   Str ++ "!\n"});
                     "sleep/" ++ Host ->
-                                ok = ping_mgr:sleep( Host ),
+                                ok = erlanemesys_api:sleep( Host ),
                                  Req:respond({200, [{"Content-Type", "text/html"}],
                                    "<HTML>" ++
                                    "You asked to put into sleep: " ++ Host ++ "<BR>"
@@ -64,7 +60,7 @@ loop(Req, DocRoot) ->
                                 ++ "</HTML>"
                                 });
                     "active" ->
-                                Active = lists:sort( ping_mgr:get_active() ) ,
+                                Active = lists:sort( erlanemesys_api:get_active() ) ,
                                 TheFormat = "<a href=\"/report/~s\">~s</a><BR>",
                                 ActStr = lists:flatmap( fun(X) ->
                                                 io_lib:format(TheFormat,[X,X]) end,Active),
@@ -78,20 +74,26 @@ loop(Req, DocRoot) ->
                                 Tokens = string:tokens( Rest, "/" ),
                                 Host = lists:nth(1,Tokens),
                                 Interval = lists:nth(2,Tokens),
-                                ok = ping_mgr:set_interval( Host, Interval ),
+                                ok = erlanemesys_api:set_interval( Host, Interval ),
                                  Req:respond({200, [{"Content-Type", "text/plain"}],
                                    "You asked to change interval: " ++ Host ++
                                    " interval " ++ Interval ++ " ok!\n"});
+                    "report/" ++ Host ->
+                                { ok, Str }  = erlanemesys_api:report( Host ),
+                                 Req:respond({200, [{"Content-Type", "text/plain"}],
+                                   Str ++ "!\n"});
                     _ ->
-                        Req:respond({200, [{"Content-Type", "text/plain"}],
+                        Req:respond({200, [{"Content-Type", "text/html"}],
+				   "<HTML>" ++
                                    "Sorry, I don't understand your request: " ++ Path ++ "\n"
-                                ++ "help: \n"
-                                ++ "/add/IP|hostname   Monitor this host\n"
-                                ++ "/run/IP|hostname   Start monitoring\n"
-                                ++ "/sleep/IP|hostname   Stop monitoring\n"
-                                ++ "/interval/IP|hostname/xxx   Send probe every xxx msec > 100 \n"
-                                ++ "/report/IP|hostname   get results\n"
-                                ++ "/active   get active hosts\n"
+                                ++ "help: <BR>"
+                                ++ "/add/IP|hostname   Monitor this host<BR>"
+                                ++ "/run/IP|hostname   Start monitoring<BR>"
+                                ++ "/sleep/IP|hostname   Stop monitoring<BR>"
+                                ++ "/interval/IP|hostname/xxx   Send probe every xxx msec > 101 <BR>"
+                                ++ "/report/IP|hostname   get results<BR>"
+                                ++ "<a href=\"/active\"> /active   get active hosts<BR>"
+                                ++ "</HTML>"
                         })
 
 %                  "hello_world" ->
