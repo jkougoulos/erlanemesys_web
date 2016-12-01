@@ -34,11 +34,20 @@ loop(Req, DocRoot) ->
                                 ++ "<a href=\"/active\"> Active ones</a><BR>"
                                 ++ "</HTML>"
                                 });
-                    "add/" ++ Host ->
-                                {ok, Pid } = erlanemesys_api:add( Host ),
+                    "addping/" ++ Host ->
+                                {ok, Pid } = erlanemesys_api:addping( Host ),
                                  Req:respond({200, [{"Content-Type", "text/html"}],
                                    "<HTML>" ++
-                                   "You asked to add: " ++ Host ++
+                                   "You asked to add ping: " ++ Host ++
+                                   " ok, Pid is "  ++ pid_to_list( Pid ) ++ "!<BR>"
+                                ++ "<a href=\"/active\"> Active ones</a><BR>"
+                                ++ "</HTML>"
+                                });
+                    "addhttp/" ++ Host ->
+                                {ok, Pid } = erlanemesys_api:addhttp( Host ),
+                                 Req:respond({200, [{"Content-Type", "text/html"}],
+                                   "<HTML>" ++
+                                   "You asked to add http: " ++ Host ++
                                    " ok, Pid is "  ++ pid_to_list( Pid ) ++ "!<BR>"
                                 ++ "<a href=\"/active\"> Active ones</a><BR>"
                                 ++ "</HTML>"
@@ -87,7 +96,8 @@ loop(Req, DocRoot) ->
 				   "<HTML>" ++
                                    "Sorry, I don't understand your request: " ++ Path ++ "\n"
                                 ++ "help: <BR>"
-                                ++ "/add/IP|hostname   Monitor this host<BR>"
+                                ++ "/addping/IP|hostname   Monitor this host<BR>"
+                                ++ "/addhttp/IP|hostname   Monitor this host<BR>"
                                 ++ "/run/IP|hostname   Start monitoring<BR>"
                                 ++ "/sleep/IP|hostname   Stop monitoring<BR>"
                                 ++ "/interval/IP|hostname/xxx   Send probe every xxx msec > 101 <BR>"
